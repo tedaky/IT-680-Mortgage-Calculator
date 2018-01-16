@@ -1,0 +1,1 @@
+Angular loop is `*ngFor="let item of items"`. Need to use component to convert algorithm to array

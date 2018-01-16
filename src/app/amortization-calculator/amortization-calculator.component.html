@@ -1,0 +1,26 @@
+<form #form="ngForm" (submit)="form.valid ? calculatePayment() : null" autocomplete="off">
+    <div>
+        <label for="loanAmount">Loan Amount:</label>
+        <input [(ngModel)]="loanAmount" type="text" name="loanAmount" (keyup)="loanAmountUpdate(loan)" id="loanAmount" class="input-large" required #loan>
+    </div>
+    <div>
+        <label>Length:</label>
+        <label for="years">Years:</label><input type="text" name="years" id="years" (keyup)="lengthUpdate(years, months)" class="input-small" required #years>
+        <label for="months">Months:</label><input type="text" name="months" id="months" (keyup)="lengthUpdate(years, months)" class="input-small" required #months>
+        <input type="hidden" [(ngModel)]="length" name="length" id="length">
+    </div>
+    <div>
+        <label for="interestRate">Interest Rate:</label>
+        <input type="text" id="interestRate" name="interestRate" (keyup)="interestRateUpdate(interestPercentage)" class="input-small" #interestPercentage>%
+    </div>
+    <button type="submit">Submit</button>
+    <div>
+        <p>Monthly Payment: {{monthlyPayment}}</p>
+    </div>
+</form>
+
+<table *ngIf="monthlyPayment">
+    <tr *ngFor="let item of table">
+        <td>{{item}}</td>
+    </tr>
+</table>
