@@ -35,37 +35,42 @@ export class AmortizationCalculatorComponent implements OnInit {
         this.extraPaymentsType = 0;
     }
 
-    // converts an element's value to a number 0 or greater
+    // converts value to a number 0 or greater
     elValToNum(val): number {
         const convert: number = parseInt(val, 10);
         return convert ? convert < 0 ? 0 : convert : 0;
     }
 
+    // Updates loan input
     loanAmountUpdate(): void {
         this.loanAmount = this.elValToNum(this.loanAmount);
     }
 
+    // Make sure month field can't go higher than 12
+    updateMonth(val): number {
+        const temp: number = this.elValToNum(val);
+        return temp > 12 ? 12 : temp;
+    }
+
+    // First verifies years and months fields then combines them to time
     lengthUpdate(): void {
         this.years = this.elValToNum(this.years);
         this.months = this.updateMonth(this.months);
         this.time = (this.years * 12) + this.months;
     }
 
-    updateMonth(val): number {
-        const temp: number = this.elValToNum(val);
-        return temp > 12 ? 12 : temp;
-    }
-
+    // converts interest rate percentage to decimal
     interestRateUpdate(interestPercentage): number {
         return interestPercentage / 100;
     }
 
+    // calculates the amortization table
     calculate(): void {
         this.table = this.amortization();
     }
 
+    // The magic
     amortization(): Amortization[] {
-        let month: number = 0;
         let balance: number = this.loanAmount;
         const monthlyRate: number = this.interestRateUpdate(this.interestRate) / 12;
         const terms: number = this.time;
@@ -81,9 +86,6 @@ export class AmortizationCalculatorComponent implements OnInit {
 
         for (let count = 0; count < terms; count++) {
 
-            // display the month number in col 1 using the loop count variable
-            month = (count + 1);
-
             // code for displaying in loop balance
             balance = parseFloat(balance.toFixed(2));
 
@@ -95,7 +97,6 @@ export class AmortizationCalculatorComponent implements OnInit {
             principal = parseFloat(monthlyPrincipal.toFixed(2));
 
             table.push({
-                month: month,
                 balance: balance,
                 interest: interest,
                 principal: principal
@@ -111,7 +112,6 @@ export class AmortizationCalculatorComponent implements OnInit {
 
 
 interface Amortization {
-    month: number;
     balance: number;
     interest: number;
     principal: number;
