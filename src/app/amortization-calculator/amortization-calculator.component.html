@@ -19,7 +19,7 @@
     </div>
 </form>
 
-<table *ngIf="monthlyPayment">
+<table *ngIf="monthlyPayment" border="1">
     <tr>
         <th>Month #</th>
         <th>Payment</th>
@@ -27,8 +27,8 @@
         <th>Interest</th>
         <th>Principal</th>
     </tr>
-    <tr *ngFor="let item of table">
-        <td>{{ item.month}}</td>
+    <tr *ngFor="let item of table; let i = index">
+        <td>{{ i + 1 }}</td>
         <td>{{ (monthlyPayment).toFixed(2) }}</td>
         <td>{{ (item.balance).toFixed(2) }}</td>
         <td>{{ (item.interest).toFixed(2) }}</td>
