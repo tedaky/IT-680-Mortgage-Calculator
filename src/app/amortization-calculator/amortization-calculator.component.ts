@@ -79,10 +79,10 @@ export class AmortizationCalculatorComponent implements OnInit {
         let table: Amortization[];
         table = [];
         // in-loop interest amount holder
-        let interest: any = 0;
+        let interest: number = 0;
         // in-loop monthly principal amount holder
-        let monthlyPrincipal = 0;
-        let principal: any = 0;
+        let monthlyPrincipal: number = 0;
+        let principal: number = 0;
 
         for (let count = 0; count < terms; count++) {
 
@@ -105,6 +105,26 @@ export class AmortizationCalculatorComponent implements OnInit {
             // update the balance for each loop iteration
             balance = balance - monthlyPrincipal;
         }
+
+        // code for displaying in loop balance
+        balance = parseFloat(balance.toFixed(2));
+
+        // calc the in-loop interest amount
+        interest = parseFloat((balance * monthlyRate).toFixed(2));
+
+        // calc the in-loop monthly principal
+        monthlyPrincipal = this.monthlyPayment - interest;
+        principal = parseFloat(monthlyPrincipal.toFixed(2));
+
+        table.push({
+            balance: balance,
+            interest: interest,
+            principal: principal
+        });
+
+        // update the balance for each loop iteration
+        balance = balance - monthlyPrincipal;
+
         return table;
     }
 

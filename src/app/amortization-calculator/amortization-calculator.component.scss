@@ -9,3 +9,12 @@
 .input-large {
     width: 100px;
 }
+table {
+    border-collapse: collapse;
+}
+td, th {
+    padding: 5px 7px;
+}
+tr:nth-child(odd) {
+    background-color: #e6e6e6;
+}

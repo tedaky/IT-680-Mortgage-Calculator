@@ -1,19 +1,27 @@
-<form #form="ngForm" autocomplete="off"><!--(submit)="form.valid ? calculatePayment() : null"-->
+<form #form="ngForm" autocomplete="off" (submit)="form.valid ? calculate() : null">
     <div>
         <label for="loanAmount">Loan Amount:</label>
         <input [(ngModel)]="loanAmount" type="text" name="loanAmount" (keyup)="loanAmountUpdate()" id="loanAmount" class="input-large" required>
     </div>
     <div>
         <label>Length:</label>
-        <label for="years">Years:</label><input type="text" name="years" id="years" [(ngModel)]="years" (keyup)="lengthUpdate()" class="input-small" required>
-        <label for="months">Months:</label><input type="text" name="months" id="months" [(ngModel)]="months" (keyup)="lengthUpdate()" class="input-small" required>
         <input type="hidden" [(ngModel)]="time" name="time" id="time">
+        <div>
+            <div>
+                <label for="years">Years:</label>
+                <input type="text" name="years" id="years" [(ngModel)]="years" (keyup)="lengthUpdate()" class="input-small" required>
+            </div>
+            <div>
+                <label for="months">Months:</label>
+                <input type="text" name="months" id="months" [(ngModel)]="months" (keyup)="lengthUpdate()" class="input-small" required>
+            </div>
+        </div>
     </div>
     <div>
         <label for="interestRate">Interest Rate:</label>
         <input type="text" id="interestRate" name="interestRate" [(ngModel)]="interestRate" class="input-small">%
     </div>
-    <button type="button" (click)="calculate()">Submit</button>
+    <button type="submit">Submit</button>
     <div>
         <p>Monthly Payment: {{ (monthlyPayment).toFixed(2) }}</p>
     </div>
