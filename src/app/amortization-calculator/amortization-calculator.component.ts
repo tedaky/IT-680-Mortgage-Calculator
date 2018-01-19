@@ -8,6 +8,8 @@ import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 })
 export class AmortizationCalculatorComponent implements OnInit {
 
+    loanName: string;
+
     loanAmount: number;
     time: number;
     interestRate: number;
