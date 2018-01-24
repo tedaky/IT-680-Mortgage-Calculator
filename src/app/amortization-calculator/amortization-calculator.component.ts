@@ -1,17 +1,30 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { trigger, stagger, animate, style, group, query, transition } from '@angular/animations';
 
 @Component({
     selector: 'app-amortization-calculator',
     templateUrl: './amortization-calculator.component.html',
     styleUrls: ['./amortization-calculator.component.scss'],
-    encapsulation: ViewEncapsulation.None
+    animations: [
+        trigger('feedbackInOut', [
+            transition('* => *', [
+                style({ height: '0', overflow: 'hidden' }),
+                // height: '*' is auto|current height
+                animate('250ms linear', style({ height: '*' }))
+            ])
+        ])
+    ]
 })
 export class AmortizationCalculatorComponent implements OnInit {
-
+    feedbackInOutVal: string;
+    // Loan Name
     loanName: string;
 
+    // Loan Amount
     loanAmount: number;
+    // Loan Length in months
     time: number;
+    // Loan Interest Rate
     interestRate: number;
 
     years: number;
@@ -22,7 +35,7 @@ export class AmortizationCalculatorComponent implements OnInit {
     extraPayments: number;
     extraPaymentsType: number;
 
-    table: Amortization[];
+    table: Totals;
 
     constructor() { }
 
@@ -35,6 +48,23 @@ export class AmortizationCalculatorComponent implements OnInit {
         this.monthlyPayment = 0;
         this.extraPayments = 0;
         this.extraPaymentsType = 0;
+    }
+
+    roundTo(number: number, digits: number) {
+        let negative = false;
+
+        digits = (digits === undefined) ? 0 : digits;
+
+        if ( number < 0) {
+            negative = true;
+            number = number * -1;
+        }
+
+        const multiplicator = Math.pow(10, digits);
+        number = parseFloat((number * multiplicator).toFixed(11));
+        number = parseFloat((Math.floor(number) / multiplicator).toFixed(2));
+
+        return number = (negative) ? parseFloat((number * -1).toFixed(2)) : number;
     }
 
     // converts value to a number 0 or greater
@@ -68,66 +98,90 @@ export class AmortizationCalculatorComponent implements OnInit {
 
     // calculates the amortization table
     calculate(): void {
+        this.monthlyPayment = this.calculateMonthlyPayment();
         this.table = this.amortization();
+        this.feedbackInOutVal = 'in';
+        setTimeout(() => {
+            this.feedbackInOutVal = undefined;
+        }, 250);
+    }
+
+    monthlyRate(): number {
+        return this.interestRateUpdate(this.interestRate) / 12;
+    }
+
+    // calculate monthly payment
+    calculateMonthlyPayment(): number {
+        const balance = this.loanAmount;
+        const monthlyRate = this.monthlyRate();
+        const terms = this.time;
+
+        return this.roundTo(balance * (monthlyRate / (1 - Math.pow(1 + monthlyRate, -terms))), 2);
     }
 
     // The magic
-    amortization(): Amortization[] {
+    amortization(): Totals {
         let balance: number = this.loanAmount;
-        const monthlyRate: number = this.interestRateUpdate(this.interestRate) / 12;
-        const terms: number = this.time;
-        this.monthlyPayment = balance * (monthlyRate / (1 - Math.pow(1 + monthlyRate, -terms)));
+        const monthlyRate: number = this.monthlyRate();
+        // console.log(this.interestRateUpdate(this.interestRate) / 12);
+        let monthlyPayment = this.calculateMonthlyPayment();
 
         let table: Amortization[];
         table = [];
         // in-loop interest amount holder
-        let interest: number = 0;
+        let interest = 0;
         // in-loop monthly principal amount holder
-        let monthlyPrincipal: number = 0;
-        let principal: number = 0;
+        let monthlyPrincipal = 0;
+        let principal = 0;
+        let extra = this.roundTo(this.extraPayments, 2);
 
-        for (let count = 0; count < terms; count++) {
+        let monthlyPaymentExtra = 0;
+        let interestTotal = 0;
+        let principalTotal = 0;
+        let extraTotal = 0;
+        let monthlyPaymentTotal = 0;
+        let temp = 0;
 
+        while (balance > 0) {
             // code for displaying in loop balance
-            balance = parseFloat(balance.toFixed(2));
+            balance = this.roundTo(balance, 2);
 
             // calc the in-loop interest amount
-            interest = parseFloat((balance * monthlyRate).toFixed(2));
+            interest = this.roundTo((balance * monthlyRate), 2);
+            interestTotal = interestTotal + interest;
 
             // calc the in-loop monthly principal
-            monthlyPrincipal = this.monthlyPayment - interest;
-            principal = parseFloat(monthlyPrincipal.toFixed(2));
+            monthlyPayment = (monthlyPayment < balance) ? monthlyPayment : balance;
+            monthlyPrincipal = monthlyPayment - interest;
+            principal = this.roundTo(monthlyPrincipal, 2);
+            principalTotal = principalTotal + principal;
+
+            // update the balance for each loop iteration
+            temp = this.roundTo(balance - principal - interest - extra, 2);
+            monthlyPaymentExtra = (temp > 0) ? monthlyPayment + extra : balance;
+            extra = (temp > 0) ? extra : balance - monthlyPayment;
+            extraTotal = extraTotal + extra;
+
+            balance = (this.roundTo(monthlyPayment + extra, 2) < balance) ? this.roundTo(balance - principal - extra, 2) : this.roundTo(balance - balance, 2);
+
+            monthlyPaymentTotal = monthlyPaymentTotal + monthlyPaymentExtra;
 
             table.push({
                 balance: balance,
                 interest: interest,
-                principal: principal
+                principal: principal,
+                extra: extra
             });
-
-            // update the balance for each loop iteration
-            balance = balance - monthlyPrincipal;
         }
 
-        // code for displaying in loop balance
-        balance = parseFloat(balance.toFixed(2));
-
-        // calc the in-loop interest amount
-        interest = parseFloat((balance * monthlyRate).toFixed(2));
-
-        // calc the in-loop monthly principal
-        monthlyPrincipal = this.monthlyPayment - interest;
-        principal = parseFloat(monthlyPrincipal.toFixed(2));
-
-        table.push({
+        return {
+            interest: interestTotal,
+            principal: principalTotal,
+            extra: extraTotal,
+            monthlyPayment: monthlyPaymentTotal,
             balance: balance,
-            interest: interest,
-            principal: principal
-        });
-
-        // update the balance for each loop iteration
-        balance = balance - monthlyPrincipal;
-
-        return table;
+            table: table
+        };
     }
 
 }
@@ -137,4 +191,14 @@ interface Amortization {
     balance: number;
     interest: number;
     principal: number;
+    extra: number;
+}
+
+interface Totals {
+    interest: number;
+    principal: number;
+    extra: number;
+    monthlyPayment: number;
+    balance: number;
+    table: Amortization[];
 }

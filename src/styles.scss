@@ -2,3 +2,53 @@
 * {
     box-sizing: border-box;
 }
+
+.input, button {
+    padding: 5px 10px;
+    border: 1px solid #c9c9c9;
+    border-radius: 4px;
+    width: 100%;
+}
+button {
+    background-color: #5472e0;
+    color: white;
+}
+
+table {
+    border-collapse: collapse;
+}
+[width="1%"] {
+    &:first-child {
+        padding-right: 5px;
+    }
+    &:last-child {
+        padding-left: 5px;
+    }
+}
+form {
+    & + div table {
+        tr:nth-child(odd) {
+            background-color: #e6e6e6;
+        }
+        td, th {
+            padding: 5px 7px;
+        }
+    }
+}
+
+.col {
+    padding: 0 15px;
+}
+.divide {
+    margin-bottom: 20px;
+}
+[class*="wid"] {
+    display: inline-block;
+    vertical-align: top;
+}
+.wid100 {
+    width: 100%;
+}
+.wid50 {
+    width: 50%;
+}
