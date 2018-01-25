@@ -10,7 +10,7 @@ import { trigger, stagger, animate, style, group, query, transition } from '@ang
             transition('* => *', [
                 style({ height: '0', overflow: 'hidden' }),
                 // height: '*' is auto|current height
-                animate('250ms linear', style({ height: '*' }))
+                animate('500ms linear', style({ height: '*' }))
             ])
         ])
     ]
@@ -33,7 +33,7 @@ export class AmortizationCalculatorComponent implements OnInit {
     monthlyPayment: number;
 
     extraPayments: number;
-    extraPaymentsType: number;
+    extraPaymentsType: string;
 
     table: Totals;
 
@@ -47,7 +47,7 @@ export class AmortizationCalculatorComponent implements OnInit {
         this.months = 0;
         this.monthlyPayment = 0;
         this.extraPayments = 0;
-        this.extraPaymentsType = 0;
+        this.extraPaymentsType = 'monthly';
     }
 
     roundTo(number: number, digits: number) {
@@ -134,6 +134,7 @@ export class AmortizationCalculatorComponent implements OnInit {
         let monthlyPrincipal = 0;
         let principal = 0;
         let extra = this.roundTo(this.extraPayments, 2);
+        let extraTemp = 0;
 
         let monthlyPaymentExtra = 0;
         let interestTotal = 0;
@@ -142,7 +143,11 @@ export class AmortizationCalculatorComponent implements OnInit {
         let monthlyPaymentTotal = 0;
         let temp = 0;
 
+        let iteration = 0;
+
         while (balance > 0) {
+            iteration = iteration + 1;
+
             // code for displaying in loop balance
             balance = this.roundTo(balance, 2);
 
@@ -156,13 +161,21 @@ export class AmortizationCalculatorComponent implements OnInit {
             principal = this.roundTo(monthlyPrincipal, 2);
             principalTotal = principalTotal + principal;
 
-            // update the balance for each loop iteration
-            temp = this.roundTo(balance - principal - interest - extra, 2);
-            monthlyPaymentExtra = (temp > 0) ? monthlyPayment + extra : balance;
-            extra = (temp > 0) ? extra : balance - monthlyPayment;
-            extraTotal = extraTotal + extra;
+            if ((this.extraPaymentsType === 'monthly') || (this.extraPaymentsType === 'yearly' && iteration === 12)) {
+                // update the balance for each loop iteration
+                temp = this.roundTo(balance - principal - interest - extra, 2);
+                monthlyPaymentExtra = (temp > 0) ? monthlyPayment + extra : balance;
+                extra = (temp > 0) ? extra : balance - monthlyPayment;
+                extraTotal = extraTotal + extra;
+                extraTemp = extra;
+                if (iteration === 12) {
+                    iteration = 0;
+                }
+            } else {
+                extraTemp = 0;
+            }
 
-            balance = (this.roundTo(monthlyPayment + extra, 2) < balance) ? this.roundTo(balance - principal - extra, 2) : this.roundTo(balance - balance, 2);
+            balance = (this.roundTo(monthlyPayment + extraTemp, 2) < balance) ? this.roundTo(balance - principal - extraTemp, 2) : this.roundTo(balance - balance, 2);
 
             monthlyPaymentTotal = monthlyPaymentTotal + monthlyPaymentExtra;
 
@@ -170,7 +183,7 @@ export class AmortizationCalculatorComponent implements OnInit {
                 balance: balance,
                 interest: interest,
                 principal: principal,
-                extra: extra
+                extra: extraTemp
             });
         }
 
