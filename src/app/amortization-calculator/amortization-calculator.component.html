@@ -76,11 +76,12 @@
             <td colspan="2">{{ (table.interest + table.principal + table.extra).toFixed(2) }}</td>
         </tr>
         <tr>
-            <td colspan="6">Savings: {{ ((monthlyPayment * time) - (table.interest + table.principal + table.extra)).toFixed(2) }}</td>
+            <td colspan="5">Savings: {{ ((monthlyPayment * time) - (table.interest + table.principal)).toFixed(2) }}</td>
+            <td>{{table.interest}} | {{table.principal}}</td>
         </tr>
         <tr>
             <td>Totals:</td>
-            <td>{{ (table.principal + table.interest + table.extra).toFixed(2) }}</td>
+            <td>{{ (table.principal + table.interest).toFixed(2) }}</td>
             <td>{{ (table.interest).toFixed(2) }}</td>
             <td>{{ (table.principal).toFixed(2) }}</td>
             <td>{{ (table.extra).toFixed(2) }}</td>
@@ -96,7 +97,7 @@
         </tr>
         <tr *ngFor="let item of table.table; let i = index">
             <td>{{ i + 1 }}</td>
-            <td>{{ (item.principal + item.interest + item.extra).toFixed(2) }}</td>
+            <td>{{ (item.principal + item.interest).toFixed(2) }}</td>
             <td>{{ (item.interest).toFixed(2) }}</td>
             <td>{{ (item.principal).toFixed(2) }}</td>
             <td>{{ (item.extra).toFixed(2) }}</td>

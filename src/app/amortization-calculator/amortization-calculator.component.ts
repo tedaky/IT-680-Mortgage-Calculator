@@ -182,14 +182,14 @@ export class AmortizationCalculatorComponent implements OnInit {
             table.push({
                 balance: balance,
                 interest: interest,
-                principal: principal,
+                principal: principal + extraTemp,
                 extra: extraTemp
             });
         }
 
         return {
             interest: interestTotal,
-            principal: principalTotal,
+            principal: principalTotal + extraTotal,
             extra: extraTotal,
             monthlyPayment: monthlyPaymentTotal,
             balance: balance,
