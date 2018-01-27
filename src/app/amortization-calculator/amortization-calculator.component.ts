@@ -1,41 +1,30 @@
 import { Component, OnInit } from '@angular/core';
-import { trigger, stagger, animate, style, group, query, transition } from '@angular/animations';
 
 @Component({
     selector: 'app-amortization-calculator',
     templateUrl: './amortization-calculator.component.html',
-    styleUrls: ['./amortization-calculator.component.scss'],
-    animations: [
-        trigger('feedbackInOut', [
-            transition('* => *', [
-                style({ height: '0', overflow: 'hidden' }),
-                // height: '*' is auto|current height
-                animate('500ms linear', style({ height: '*' }))
-            ])
-        ])
-    ]
+    styleUrls: ['./amortization-calculator.component.scss']
 })
 export class AmortizationCalculatorComponent implements OnInit {
-    feedbackInOutVal: string;
-    // Loan Name
-    loanName: string;
-
+    //#region vars
     // Loan Amount
     loanAmount: number;
     // Loan Length in months
     time: number;
     // Loan Interest Rate
     interestRate: number;
-
     years: number;
     months: number;
-
     monthlyPayment: number;
-
     extraPayments: number;
     extraPaymentsType: string;
-
+    totalPayments: number;
     table: Totals;
+    //#endregion
+
+    //#region extras
+    open: string;
+    //#endregion extras
 
     constructor() { }
 
@@ -47,6 +36,8 @@ export class AmortizationCalculatorComponent implements OnInit {
         this.months = 0;
         this.monthlyPayment = 0;
         this.extraPayments = 0;
+        this.totalPayments = 0;
+        this.open = 'opened';
         this.extraPaymentsType = 'monthly';
     }
 
@@ -73,11 +64,6 @@ export class AmortizationCalculatorComponent implements OnInit {
         return convert ? convert < 0 ? 0 : convert : 0;
     }
 
-    // Updates loan input
-    loanAmountUpdate(): void {
-        this.loanAmount = this.elValToNum(this.loanAmount);
-    }
-
     // Make sure month field can't go higher than 12
     updateMonth(val): number {
         const temp: number = this.elValToNum(val);
@@ -85,10 +71,10 @@ export class AmortizationCalculatorComponent implements OnInit {
     }
 
     // First verifies years and months fields then combines them to time
-    lengthUpdate(): void {
+    lengthUpdate(): number {
         this.years = this.elValToNum(this.years);
         this.months = this.updateMonth(this.months);
-        this.time = (this.years * 12) + this.months;
+        return (this.years * 12) + this.months;
     }
 
     // converts interest rate percentage to decimal
@@ -96,18 +82,21 @@ export class AmortizationCalculatorComponent implements OnInit {
         return interestPercentage / 100;
     }
 
-    // calculates the amortization table
-    calculate(): void {
-        this.monthlyPayment = this.calculateMonthlyPayment();
-        this.table = this.amortization();
-        this.feedbackInOutVal = 'in';
-        setTimeout(() => {
-            this.feedbackInOutVal = undefined;
-        }, 250);
-    }
-
     monthlyRate(): number {
         return this.interestRateUpdate(this.interestRate) / 12;
+    }
+
+    // calculates the amortization table
+    calculate(): void {
+        this.loanAmount = this.elValToNum(this.loanAmount);
+        this.time = this.lengthUpdate();
+
+        this.monthlyPayment = this.calculateMonthlyPayment();
+        this.totalPayments = this.time * this.monthlyPayment;
+
+        this.table = this.amortization();
+
+        this.open = 'closed';
     }
 
     // calculate monthly payment
@@ -195,6 +184,14 @@ export class AmortizationCalculatorComponent implements OnInit {
             balance: balance,
             table: table
         };
+    }
+
+    closeInput(): void {
+        this.open = 'forced';
+    }
+
+    toggleInput(): void {
+        this.open = (this.open === 'opened') ? 'forced' : 'opened';
     }
 
 }
