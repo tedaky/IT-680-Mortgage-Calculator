@@ -82,7 +82,7 @@
                     <table *ngIf="monthlyPayment">
                         <tr>
                             <td colspan="4" align="center">Total Spent with Extra Payments</td>
-                            <td colspan="2">{{ (table.interest + table.principal + table.extra).toFixed(2) }}</td>
+                            <td colspan="2">{{ (table.interest + table.principal).toFixed(2) }}</td>
                         </tr>
                         <tr>
                             <td colspan="6">Savings: {{ ((totalPayments) - (table.interest + table.principal)).toFixed(2) }}</td>
